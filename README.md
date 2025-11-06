@@ -7,7 +7,7 @@ It uses Hugging Face models, Cuda, and Pytroch to server LLM's or other models.
 ## Perform the following steps
 
 - Git clone the repo
-- chmod +x ~/setup_notebooks.sh
+- Update the permissions on the setup file ```chmod +x ~/setup_notebooks.sh```
 - Run setup_notebooks.sh
 - Reboot and check the NVIDIA software ```nvcc --version' & 'nvidia-smi```
 - CD to Nvidia-notebooks directory
