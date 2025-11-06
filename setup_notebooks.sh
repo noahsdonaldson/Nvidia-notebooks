@@ -1,18 +1,13 @@
 #!/bin/bash
 
 # --- Configuration ---
-# Set your desired CUDA version. Hugging Face with PyTorch typically works well with recent CUDA 12.x versions.
+# Set your desired CUDA version.
 CUDA_VERSION="12.9"
 # This URL is for CUDA 12.9.0 with driver version 575.51.03.
 # ALWAYS VERIFY THIS URL on the NVIDIA CUDA Toolkit Archive for the latest stable 12.9.x version.
 # https://developer.nvidia.com/cuda-toolkit-archive
 CUDA_RUNFILE_URL="https://developer.download.nvidia.com/compute/cuda/12.9.0/local_installers/cuda_12.9.0_575.51.03_linux.run"
 CUDA_INSTALL_DIR="/usr/local/cuda-${CUDA_VERSION}"
-
-# Virtual environment settings
-VENV_NAME="hf-llm-env" # Changed virtual environment name
-VENV_PATH="$HOME/${VENV_NAME}"
-PYTHON_VERSION="3.10" # Adjust if your Ubuntu uses a different default Python 3 version (e.g., 3.8, 3.9)
 
 # --- Helper Functions ---
 log_info() {
@@ -29,12 +24,12 @@ log_error() {
 }
 
 # --- 0. Initial System Setup ---
-log_info "Starting system setup for Hugging Face LLM environment on a fresh Ubuntu install..."
+log_info "Starting system setup for NVIDIA Driver and CUDA Toolkit..."
 
 log_info "Updating and upgrading system packages..."
 sudo apt update && sudo apt upgrade -y || log_error "Failed to update/upgrade system packages."
 
-log_info "Installing essential build tools, git, wget, curl, and python3-venv..."
+log_info "Installing essential build tools, git, wget, curl, and python3-venv (for later manual setup)..."
 sudo apt install -y build-essential dkms wget curl git python3-pip python3-venv || log_error "Failed to install essential packages."
 
 # --- 1. NVIDIA Driver Installation (Recommended for fresh installs) ---
@@ -99,56 +94,20 @@ source ~/.bashrc
 log_info "CUDA environment variables set and sourced for current session."
 log_info "Please open a new terminal or run 'source ~/.bashrc' for changes to take full effect."
 
-# --- 4. Create and Activate Python Virtual Environment ---
-log_info "Creating Python virtual environment '${VENV_NAME}' at ${VENV_PATH}..."
-python${PYTHON_VERSION} -m venv "$VENV_PATH" || log_error "Failed to create virtual environment. Ensure python${PYTHON_VERSION} is installed."
-
-log_info "Activating virtual environment..."
-source "$VENV_PATH/bin/activate" || log_error "Failed to activate virtual environment. Check path: $VENV_PATH"
-
-log_info "Upgrading pip in virtual environment..."
-pip install --upgrade pip || log_error "Failed to upgrade pip."
-
-# --- 5. Install PyTorch and Hugging Face Libraries ---
-log_info "Installing PyTorch with CUDA 12.x support (using cu121 wheel)..."
-# The PyTorch wheel for cu121 is generally compatible with CUDA 12.9.
-# Check https://pytorch.org/get-started/locally/ for the most up-to-date command.
-pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu121 || log_error "Failed to install PyTorch. Check PyTorch website for correct CUDA 12.x command."
-log_info "PyTorch installed."
-
-log_info "Installing Hugging Face Transformers and Accelerate..."
-pip install transformers accelerate || log_error "Failed to install Hugging Face libraries."
-log_info "Hugging Face Transformers and Accelerate installed."
-
-# --- 6. Install Jupyter Notebook ---
-log_info "Installing Jupyter Notebook and ipykernel..."
-pip install jupyter ipykernel || log_error "Failed to install Jupyter and ipykernel."
-
-log_info "Adding virtual environment to Jupyter kernels..."
-python -m ipykernel install --user --name="${VENV_NAME}" --display-name="${VENV_NAME} (Python ${PYTHON_VERSION})" || log_error "Failed to add Jupyter kernel."
-log_info "Jupyter Notebook and kernel configured."
-
-# --- 7. Verification ---
+# --- 4. Verification ---
 log_info "--------------------------------------------------------------------------------"
-log_info "SETUP COMPLETE! Performing final verifications..."
+log_info "NVIDIA Driver and CUDA Toolkit Setup COMPLETE! Performing final verifications..."
 log_info "--------------------------------------------------------------------------------"
 
 log_info "Checking nvcc version:"
 nvcc --version || log_warn "nvcc command failed. Check CUDA installation and PATH."
 
-log_info "Checking PyTorch CUDA availability (inside venv):"
-python -c "import torch; print('PyTorch CUDA available:', torch.cuda.is_available()); print('PyTorch CUDA version:', torch.version.cuda)" || log_warn "PyTorch CUDA check failed."
-
-log_info "Checking Hugging Face Transformers import (inside venv):"
-python -c "from transformers import pipeline; print('Hugging Face Transformers import successful')" || log_warn "Hugging Face Transformers import failed."
+log_info "Checking nvidia-smi (GPU driver status):"
+nvidia-smi || log_warn "nvidia-smi command failed. GPU driver might not be installed or working correctly."
 
 log_info "--------------------------------------------------------------------------------"
-log_info "All steps attempted. Please review the output for any warnings or errors."
-log_info "To use your setup:"
-log_info "1. Open a new terminal."
-log_info "2. Activate your virtual environment: \e[1;32msource ${VENV_PATH}/bin/activate\e[0m"
-log_info "3. To start Jupyter Notebook: \e[1;32mjupyter notebook\e[0m"
-log_info "Your virtual environment is also available as a Jupyter kernel named '${VENV_NAME} (Python ${PYTHON_VERSION})'."
+log_info "All system-level setup steps attempted. Please review the output for any warnings or errors."
+log_info "NEXT STEPS: Manually create your Python virtual environment and install libraries."
 log_info "--------------------------------------------------------------------------------"
 
 log_info "Script finished."
