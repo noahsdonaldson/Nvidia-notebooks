@@ -9,7 +9,13 @@ It uses Hugging Face models, Cuda, and Pytroch to server LLM's or other models.
 - Git clone the repo
 - Update the permissions on the setup file ```chmod +x ~/setup_notebooks.sh```
 - Run setup_notebooks.sh
-- Reboot and check the NVIDIA software ```nvcc --version' & 'nvidia-smi```
+- Reboot and check the NVIDIA software ```nvidia-smi```
+- Install Nvidia cuda toolkit
+  ```cd /tmp ```
+  ```rm -f cuda_12.9.0_575.51.03_linux.run # Remove old potentially corrupted file```
+  ```wget https://developer.download.nvidia.com/compute/cuda/12.9.0/local_installers/cuda_12.9.0_575.51.03_linux.run -O cuda_12.9_linux.run```
+  ```chmod +x cuda_12.9_linux.run```
+  ```sudo /tmp/cuda_12.9_linux.run # Only install the toolkit!!!!!```
 - CD to Nvidia-notebooks directory
 - Setup Python virtual environment - ```python3.10 -m venv ~/hf-llm-env```
 - Activiate the virtual environement - ```source ~/hf-llm-env/bin/activate```
